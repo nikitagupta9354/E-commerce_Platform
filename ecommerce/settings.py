@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from dotenv import load_dotenv
+
+
+# Load environment variables from the .env file (if present)
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-f+k2zod1bspn_e$8shsob%9z@!)ah!e4npl33h5v2+zng_e3)@'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -44,6 +49,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'user',
     'product',
+    'cart',
+    'checkout',
+    'order',
+    'admin_dashboard',
+    
 ]
 
 MIDDLEWARE = [
@@ -67,7 +77,7 @@ ROOT_URLCONF = 'ecommerce.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,15 +99,13 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce',  # The name of the database you just created
-        'USER': 'postgres',   # Your PostgreSQL username (often 'postgres')
-        'PASSWORD': 'root',  # Your PostgreSQL password
-        'HOST': 'localhost',  # If PostgreSQL is on your local machine
+        'NAME': os.environ.get('DB_NAME'),  # The name of the database you just created
+        'USER': os.environ.get('DB_USER'),   # Your PostgreSQL username (often 'postgres')
+        'PASSWORD': os.environ.get('DB_PASSWORD'),  # Your PostgreSQL password
+        'HOST': os.environ.get('DB_HOST'),  # If PostgreSQL is on your local machine
         'PORT': '5432',       # Default PostgreSQL port
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -184,6 +192,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com' 
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER =os.environ.get('EMAIL_HOST_USER')   
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')   
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL =os.environ.get('DEFAULT_FROM_EMAIL')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+
+STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET_KEY = os.environ.get('STRIPE_WEBHOOK_SECRET_KEY')

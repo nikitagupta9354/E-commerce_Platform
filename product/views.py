@@ -11,11 +11,15 @@ from django.shortcuts import get_list_or_404,get_object_or_404
 from django.db.models import Q
 
 
-from.models import Product,Review
+from.models import Product,Review,Cost
 
 from .serializers import ProductSerializer,ReviewSerializer
 
 from .permissions import IsSellerOrReadOnly,IsProductOwnerOrReadOnly,IsReviewOwner
+
+import stripe
+
+from ecommerce import settings
 
 
 
@@ -28,10 +32,32 @@ class Product_List(APIView):
         return Response(serializer.data,status=status.HTTP_200_OK)
     
     def post(self,request):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         serializer=ProductSerializer(data=request.data)
         if serializer.is_valid():
-            product=serializer.save(seller=request.user)
+            product_name = serializer.validated_data['name']
+            price=serializer.validated_data['price']
+            currency=serializer.validated_data['currency']
+            product = stripe.Product.create(name=product_name)
+            product=serializer.save(seller=request.user,stripe_product_id=product.id)
             product.add_parent_categories()
+            
+            if currency in ['usd', 'eur', 'inr']:  # Add other currencies as needed
+                stripe_price_amount =int( price * 100)
+            else:
+                stripe_price_amount = price
+            stripe_price = stripe.Price.create(
+                    product=product.stripe_product_id,
+                    unit_amount=stripe_price_amount,  
+                    currency=currency,
+                )
+            Cost.objects.create(
+                    product=product,
+                    stripe_price_id=stripe_price.id,
+                    cost=price,
+                    currency=currency
+                )
+            
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -99,6 +125,7 @@ class Search(APIView):
             min_price = request.query_params.get('min_price', None)
             max_price = request.query_params.get('max_price', None)
             if  category:
+                print(category)
                 products=products.filter(category__name=category) #filter
             if min_price:
                 products=products.filter(price__gte=min_price) #filter
