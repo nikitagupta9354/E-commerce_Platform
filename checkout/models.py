@@ -44,7 +44,7 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     shipping_status=models.CharField(max_length=20, choices=CHOICES, default='Pending')
-    payment_status = models.CharField(max_length=20, choices=STATUS_CHOICES,default='Success')
+    payment_status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     
     

@@ -132,23 +132,26 @@ def stripe_webhook(request):
         address = Address.objects.get(id=address_id)
         user_id = session['metadata']['user_id']
         user = User.objects.get(id=user_id)
-        cart=Cart.objects.get(user=user)
+        # cart=Cart.objects.get(user=user)
+        # cart_items = CartItem.objects.filter(cart=cart)
+        cart = Cart.objects.prefetch_related('cartitem_set').get(user=user)
+        cart_items = cart.cartitem_set.all()
         order=Order.objects.create(user=user,address=address,payment_status='Success',total_amount=cart.cart_total)#create order after successful payment
-        cart_items = CartItem.objects.filter(cart=cart)
         for cart_item in cart_items:
             OrderItem.objects.create(
                 order=order,
                 product=cart_item.product,
                 quantity=cart_item.quantity,
                 price=cart_item.product.price*cart_item.quantity, 
-                 
+                payment_status='Success',
             )
         # cart_items.delete()
         # cart.delete()
-        orderitem=OrderItem.objects.filter(order=order)
-        for i in orderitem:
-            i.product.inventory-=1
+        # orderitem=OrderItem.objects.filter(order=order)
+        for i in order.orderitem_set.all():
+            i.product.inventory-=i.quantity
             i.product.save()
+        
         subject="Your payment is successful"
         text_content = f"Thank you for your purchase, {order.user.first_name}. Your order ID is {order.id}."
         from_email=settings.DEFAULT_FROM_EMAIL
