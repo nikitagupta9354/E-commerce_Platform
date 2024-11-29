@@ -28,7 +28,7 @@ class Login(APIView):
             if user:
                 token=get_tokens_for_user(user)
                 return Response({'Token':token,'Message':'Login Successful'},status=status.HTTP_200_OK)
-            return Response({'Invalid credentials'},status=status.HTTP_404_NOT_FOUND)
+            return Response({'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors,status=status.HTTP_404_NOT_FOUND)
     
 class Profile(APIView):
@@ -57,7 +57,7 @@ class ChangePassword(APIView):
     
 class ResetPasswordEmail(APIView):
     def post(self, request):
-        serializer=ResetPasswordEmailSerializer(data=request.data)
+        serializer=ResetPasswordEmailSerializer(data=request.data,context={'request': request})
         if serializer.is_valid():
             return Response({'Message':'Password Reset Link Sent'},status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

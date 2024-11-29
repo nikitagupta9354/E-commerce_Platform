@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_simplejwt',
     'user',
+    'product',
 ]
 
 MIDDLEWARE = [
@@ -87,10 +88,15 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ecommerce',  # The name of the database you just created
+        'USER': 'postgres',   # Your PostgreSQL username (often 'postgres')
+        'PASSWORD': 'root',  # Your PostgreSQL password
+        'HOST': 'localhost',  # If PostgreSQL is on your local machine
+        'PORT': '5432',       # Default PostgreSQL port
     }
 }
+
 
 
 # Password validation
