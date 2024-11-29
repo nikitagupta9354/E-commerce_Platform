@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Receipt</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .order-details { margin: 20px 0; }
+        .order-details th, .order-details td { padding: 10px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Your Payment Receipt</h1>
+    <p>Thank you for your purchase, {{ order.user.first_name }}!</p>
+    <p>Order ID: {{ order.id }}</p>
+    <h2>Order Details:</h2>
+    <table class="order-details">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>SubTotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in orderitem %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Total Amount: {{ order.total_amount }}</p>
+</body>
+</html>

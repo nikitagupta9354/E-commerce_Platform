@@ -39,7 +39,7 @@ class LoginSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model= User
-        fields=['id','email','first_name','last_name','phone_number','role']
+        fields=['email','first_name','last_name','phone_number']
         
 class ChangePasswordSerializer(serializers.ModelSerializer):
     old_password= serializers.CharField(style={'input_type':'password'}, write_only=True)
@@ -77,11 +77,13 @@ class ResetPasswordEmailSerializer(serializers.ModelSerializer):
         user = User.objects.get(email=value)
         if not user:
             raise serializers.ValidationError({"You are not a registered user."})
+        print(user,"asdfghjkl")
         uid=urlsafe_base64_encode(force_bytes(user.id))
         token=PasswordResetTokenGenerator().make_token(user)
         request=self.context.get('request')
         relative_link = reverse('reset-password', kwargs={'uidb64': uid, 'token': token})
         absolute_url = request.build_absolute_uri(relative_link)
+        print(settings.DEFAULT_FROM_EMAIL)
         send_mail('Password Reset', absolute_url, settings.DEFAULT_FROM_EMAIL, [user.email])
         return value
     
